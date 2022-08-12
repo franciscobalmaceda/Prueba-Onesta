@@ -1,0 +1,74 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Cliente {
+  id       Int        @id @default(autoincrement())
+  name     String
+  lastName String
+  mail     String     @unique
+  Cosechas Cosechas[]
+}
+
+model Agricultor {
+  id       Int        @id @default(autoincrement())
+  name     String
+  lastName String
+  mail     String     @unique
+  farms    Campo[]
+  Cosechas Cosechas[]
+}
+
+model Campo {
+  id           Int        @id @default(autoincrement())
+  name         String
+  location     String
+  Agricultor   Agricultor @relation(fields: [agricultorId], references: [id])
+  agricultorId Int
+  Cosechas     Cosechas[]
+
+  @@unique([name, location])
+}
+
+model Variedad {
+  id               Int                @id @default(autoincrement())
+  name             String
+  VariedadOnFrutas VariedadOnFrutas[]
+}
+
+model Fruta {
+  id               Int                @id @default(autoincrement())
+  name             String             @unique
+  VariedadOnFrutas VariedadOnFrutas[]
+}
+
+model VariedadOnFrutas {
+  fruta      Fruta      @relation(fields: [frutaId], references: [id])
+  frutaId    Int
+  variedad   Variedad   @relation(fields: [variedadId], references: [id])
+  variedadId Int
+  Cosechas   Cosechas[]
+
+  @@id([frutaId, variedadId])
+}
+
+model Cosechas {
+  id                         Int              @id @default(autoincrement())
+  varfrut                    VariedadOnFrutas @relation(fields: [variedadOnFrutasFrutaId, variedadOnFrutasVariedadId], references: [frutaId, variedadId])
+  variedadOnFrutasFrutaId    Int
+  variedadOnFrutasVariedadId Int
+  cliente                    Cliente          @relation(fields: [clienteId], references: [id])
+  clienteId                  Int
+  agricultor                 Agricultor       @relation(fields: [agricultorId], references: [id])
+  agricultorId               Int
+  campo                      Campo            @relation(fields: [campoId], references: [id])
+  campoId                    Int
+}
